@@ -57,7 +57,7 @@
 module Data.OFX
   ( -- * Error handling
     Err
-  
+
     -- * The OFX data tree
   , HeaderTag
   , HeaderValue
@@ -134,7 +134,7 @@ module Data.OFX
 import Control.Applicative (many, optional, (<|>))
 import Control.Monad (replicateM)
 import qualified Data.Time as T
-  
+
 import Text.Parsec.String (Parser)
 import Text.Parsec
   ( lookAhead, char, manyTill, anyChar, (<?>), eof,
@@ -244,7 +244,7 @@ header
   <*  optional (many (char ' '))
   <*> manyTill anyChar newline
   <?> "OFX header"
-  
+
 -- | Parses any opening tag. Returns the name of the tag.
 openingTag :: Parser TagName
 openingTag =
@@ -295,7 +295,7 @@ tag =
       else Tag n (Right children) <$ spaces <* closingTag n
                                   <* spaces
   <?> "OFX tag"
-        
+
 
 -- | Parses an entire OFX file, including headers.
 ofxFile :: Parser OFXFile
@@ -334,7 +334,7 @@ date =
       Just (t, z) -> return $ T.ZonedTime (T.LocalTime day t) z
   <?> "date"
 
-  
+
 -- | Parses an OFX time. Fails if the time is not valid or if there is
 -- no time to parse. Fails if there is no time to parse; however, if
 -- there is a time but no zone, returns the time and UTC for the zone.
@@ -357,7 +357,7 @@ time =
     let sec = s + milli
     return (T.TimeOfDay h m sec, tz)
   <?> "time"
-                
+
 
 -- | Parses a time zone offset. Fails if there is no time zone offset
 -- to parse.
@@ -453,7 +453,7 @@ bankAccountNumber =
 -- | Gets either the credit card or bank account number, if available.
 accountNumber :: OFXFile -> Maybe TagData
 accountNumber f = creditCardNumber f <|> bankAccountNumber f
-  
+
 
 -- | Finds the first tag (either this tag or any children) that has
 -- the given name and that is a data tag (not an aggregate tag.) If no
@@ -476,7 +476,7 @@ required n t = case findData n t of
 
 --
 -- # OFX data
--- 
+--
 
 -- | OFX transaction types. These are used in STMTTRN aggregates, see
 -- OFX spec section 11.4.2.3.1.1.
@@ -750,7 +750,7 @@ transaction t = do
 
   let mayDtuStr = findData "DTUSER" t
   dtu <- maybe (return Nothing) (fmap Just . parseDate) mayDtuStr
-      
+
   let mayDtAvail = findData "DTAVAIL" t
 
   dta <- maybe (return Nothing) (fmap Just . parseDate) mayDtAvail
@@ -760,7 +760,7 @@ transaction t = do
   correctAct <-
     case findData "CORRECTACTION" t of
       Nothing -> return Nothing
-      Just d -> 
+      Just d ->
         maybe (return Nothing)
           (fromMaybe ("could not parse correct action: " ++ d))
         . safeRead
@@ -774,7 +774,7 @@ transaction t = do
   let mayPyeInfo = fmap (return . Left) (findData "NAME" t)
                    <|> fmap (fmap Right) (payee t)
   pyeInfo <- maybe (return Nothing) (fmap Just) mayPyeInfo
- 
+
   let mayAcctTo = (fmap (fmap Left) $ bankAcctTo t)
                <|> (fmap (fmap Right) $ ccAcctTo t)
       mayCcy = (fmap (fmap Left) $ currency t)
@@ -801,7 +801,7 @@ transaction t = do
     , txAccountTo = acctTo
     , txMEMO = memo
     , txCurrency = ccy
-    }      
+    }
 
 -- | Parses a Payee record from its parent tag.
 payee
@@ -828,7 +828,7 @@ payee = fmap getPayee . listToMaybe . find "PAYEE"
       <*> required "POSTALCODE" t
       <*> pure (findData "COUNTRY" t)
       <*> required "PHONE" t
-  
+
 
 currency :: Tag -> Maybe (Err Currency)
 currency
