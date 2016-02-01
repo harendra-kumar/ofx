@@ -131,7 +131,7 @@ module Data.OFX
 -- # Imports
 --
 
-import Control.Applicative (many, optional, (<|>))
+import Control.Applicative
 import Control.Monad (replicateM)
 import qualified Data.Time as T
 
@@ -945,7 +945,7 @@ pFile :: OFXFile -> Doc
 pFile (OFXFile hs t)
   = "OFX file:"
   $$ nest 2 (vcat [ pList . map pHeader $ hs
-                   , mempty
+                   , M.mempty
                    , pTag t ])
 
 pEither :: (a -> Doc) -> (b -> Doc) -> Either a b -> Doc
